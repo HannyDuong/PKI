@@ -1,0 +1,16 @@
+  378  openssl ca \\n    -config etc/signing-ca.conf \\n    -in certs/fred.csr \\n    -out certs/fred.crt \\n    -extensions email_ext
+  379  SAN=DNS:www.simple.org \\nopenssl req -new \\n    -config etc/server.conf \\n    -out certs/simple.org.csr \\n    -keyout certs/simple.org.key
+  380  openssl ca \\n    -config etc/signing-ca.conf \\n    -in certs/simple.org.csr \\n    -out certs/simple.org.crt \\n    -extensions server_ext
+  381  openssl ca \\n    -config etc/signing-ca.conf \\n    -revoke ca/signing-ca/01.pem \\n    -crl_reason superseded
+  382  openssl ca -gencrl \\n    -config etc/signing-ca.conf \\n    -out crl/signing-ca.crl
+  383  openssl x509 \\n    -in certs/fred.crt \\n    -out certs/fred.cer \\n    -outform der
+  384  openssl crl \\n    -in crl/signing-ca.crl \\n    -out crl/signing-ca.crl \\n    -outform der
+  385  openssl crl2pkcs7 -nocrl \\n    -certfile ca/signing-ca.crt \\n    -certfile ca/root-ca.crt \\n    -out ca/signing-ca-chain.p7c \\n    -outform der
+  386  openssl pkcs12 -export \\n    -name "Fred Flintstone" \\n    -inkey certs/fred.key \\n    -in certs/fred.crt \\n    -out certs/fred.p12
+  387  cat ca/signing-ca.crt ca/root-ca.crt > \\n    ca/signing-ca-chain.pem
+  388  cat certs/fred.key certs/fred.crt > \\n    certs/fred.pem
+  389  openssl req \\n    -in certs/fred.csr \\n    -noout \\n    -text
+  390  openssl x509 \\n    -in certs/fred.crt \\n    -noout \\n    -text
+  391  openssl crl \\n    -in crl/signing-ca.crl \\n    -inform der \\n    -noout \\n    -text
+  392  openssl pkcs7 \\n    -in ca/signing-ca-chain.p7c \\n    -inform der \\n    -noout \\n    -text \\n    -print_certs
+  393  openssl pkcs12 \\n    -in certs/fred.p12 \\n    -nodes \\n    -info
